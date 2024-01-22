@@ -197,9 +197,9 @@ def svm_predict(th2,rects,boxes):
     svm = cv2.ml.SVM_load("svm_data.dat")
     hog = get_hog();
     for x,y,x2,y2 in rects:
-    	region = cv2.resize(th2[y:y2,x:x2],(100,100),interpolation = cv2.INTER_CUBIC)
-    	hog_des = hog.compute(region)
-    	_,result = svm.predict(np.array(hog_des,np.float32).reshape(-1,3249))
+        region = cv2.resize(th2[y:y2,x:x2],(100,100),interpolation = cv2.INTER_CUBIC)
+        hog_des = hog.compute(region)
+        _,result = svm.predict(np.array(hog_des,np.float32).reshape(-1,3249))
         idx = int(result[0][0])+3
         boxes.append([[int(x),int(y),int(x2-x),int(y2-y)],idx])
     return boxes
@@ -352,9 +352,9 @@ if __name__ == "__main__":
         if process_stage == 2 and prev_stage == 1:
             ## find nodes and nodes end points
             for ((x,y,w,h),idx) in boxes:
-            	bw[y:y+h,x:x+w]  = 0
+                bw[y:y+h,x:x+w]  = 0
                 th2[y:y+h,x:x+w] = 0
-
+                
             node_closing = cv2.morphologyEx(th2, cv2.MORPH_CLOSE, kernel)
             node_temp = cv2.findContours(node_closing.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[1]
 

@@ -1,11 +1,9 @@
-#from scipy import weave
 import numpy as np
 import cv2
 import sys
-import imutils
 from numba import jit
 
-@jit
+@jit(nopython=True)
 def _thinningIteration(im, iter_):
     M = np.zeros(im.shape, np.uint8)
     h, w = im.shape
@@ -31,6 +29,7 @@ def _thinningIteration(im, iter_):
 
     return im & ~M
 
+
 def thinning(src):
 	dst = src.copy() / 255
 	prev = np.zeros(src.shape[:2], np.uint8)
@@ -46,35 +45,12 @@ def thinning(src):
 
 	return dst * 255
 
-def skeleton_endpoints(skel):
-    # make out input nice, possibly necessary
-    skel = skel.copy()
-    skel[skel!=0] = 1
-    skel = np.uint8(skel)
-
-    # apply the convolution
-    kernel = np.uint8([[1,  1, 1],
-                       [1, 10, 1],
-                       [1,  1, 1]])
-
-    filtered = cv2.filter2D(skel,-1,kernel)
-
-    out = np.zeros_like(skel)
-    out[np.where(filtered == 11)] = 255
-    return out
 
 if __name__ == "__main__":
-
-	src = cv2.imread("circuit6.jpg")
-	src = imutils.resize(src,width=640)
-	gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-
-	img = cv2.GaussianBlur(gray,(9,9),0)
-	th = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-			cv2.THRESH_BINARY_INV,11,2)
-	bw = thinning(th)
-
-	ends = skeleton_endpoints(bw)
-	cv2.imshow("thinning", bw)
-	cv2.imshow("ends", ends)
+	src = cv2.imread("test.png")
+	bw = cv2.cvtColor(src, cv2.COLOR_BGRA2GRAY)
+	cv2.imshow("src", bw)
+	bw2 = cv2.threshold(bw, 10, 255, cv2.THRESH_BINARY)
+	bw2 = thinning(bw2)
+	cv2.imshow("thinning", bw2)
 	cv2.waitKey()
